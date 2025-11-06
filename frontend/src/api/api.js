@@ -1,42 +1,69 @@
-import axios from "axios";
+import axios from 'axios';
 
-// Vite environment variable syntax
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
-
+const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const api = axios.create({
   baseURL: `${BACKEND_URL}/api`,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
 });
 
-// --- API Calls ---
 export const getProducts = async () => {
   try {
-    const response = await api.get("/products");
+    const response = await api.get('/products');
     return response.data;
   } catch (error) {
-    console.error("Error fetching products:", error);
+    console.error('Error fetching products:', error);
     throw error;
   }
 };
 
 export const getCart = async () => {
   try {
-    const response = await api.get("/cart");
+    const response = await api.get('/cart');
     return response.data;
   } catch (error) {
-    console.error("Error fetching cart:", error);
+    console.error('Error fetching cart:', error);
     throw error;
   }
 };
 
-export const addToCart = async (productId, qty = 1) => {
+export const updateCartQuantity = async (productId, qty) => {
   try {
-    const response = await api.post("/cart", { productId, qty });
+    // If qty is negative, we need to handle it as a removal
+    if (qty < 0) {
+      const cart = await getCart();
+      const cartItem = cart.items.find(item => item.productId === productId);
+      if (cartItem) {
+        if (cartItem.qty + qty <= 0) {
+          // If new quantity would be 0 or negative, remove the item
+          return removeFromCart(cartItem.id);
+        } else {
+          // Otherwise update with absolute value
+          const response = await api.post('/cart', { 
+            productId, 
+            qty: qty // Send positive value
+          });
+          return response.data;
+        }
+      }
+      throw new Error('Item not found in cart');
+    }
+    
+    // For positive quantities, proceed normally
+    const response = await api.post('/cart', { productId, qty });
     return response.data;
   } catch (error) {
-    console.error("Error adding to cart:", error);
+    console.error('Error updating cart quantity:', error);
+    throw error;
+  }
+};
+
+export const addToCart = async (productId, qty) => {
+  try {
+    return await updateCartQuantity(productId, qty);
+  } catch (error) {
+    console.error('Error adding to cart:', error);
     throw error;
   }
 };
@@ -46,17 +73,17 @@ export const removeFromCart = async (itemId) => {
     const response = await api.delete(`/cart/${itemId}`);
     return response.data;
   } catch (error) {
-    console.error("Error removing from cart:", error);
+    console.error('Error removing from cart:', error);
     throw error;
   }
 };
 
 export const checkout = async (cartItems) => {
   try {
-    const response = await api.post("/checkout", { cartItems });
+    const response = await api.post('/checkout', { cartItems });
     return response.data;
   } catch (error) {
-    console.error("Error during checkout:", error);
+    console.error('Error during checkout:', error);
     throw error;
   }
 };

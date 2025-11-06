@@ -20,6 +20,11 @@ export async function checkout(req, res, next) {
       items = await CartItem.findAll();
     }
 
+    // Check for empty cart
+    if (!items || items.length === 0) {
+      return res.status(400).json({ error: "Cannot checkout with empty cart" });
+    }
+
     // Compute total using product prices
     let total = 0;
     // cartItems items in two possible formats:

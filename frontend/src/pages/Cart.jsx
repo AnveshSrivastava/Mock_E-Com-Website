@@ -1,127 +1,308 @@
-import React, { useState, useEffect, useContext } from "react";
-import api from "../api/api";
-import { CartContext } from "../context/CartContext";
-import ReceiptModal from "../components/ReceiptModal";
-import "../styles.css";
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Trash2, Plus, Minus } from 'lucide-react';
+import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { Loader } from '@/components/Loader';
+import { EmptyState } from '@/components/EmptyState';
+import { ReceiptModal } from '@/components/ReceiptModal';
+import { getCart, addToCart, removeFromCart, checkout, updateCartQuantity } from '@/api/api';
+import { formatPrice } from '@/utils/formatPrice';
 
-export default function Cart() {
-  const { fetchCart } = useContext(CartContext);
-  const [cartData, setCartData] = useState([]);
-  const [total, setTotal] = useState(0);
+export const Cart = ({ onCartUpdate }) => {
+  const [cartData, setCartData] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(null);
+  const [checkingOut, setCheckingOut] = useState(false);
   const [showReceipt, setShowReceipt] = useState(false);
   const [receipt, setReceipt] = useState(null);
-  const [formData, setFormData] = useState({ name: "", email: "" });
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+  });
 
   useEffect(() => {
-    loadCart();
+    fetchCart();
   }, []);
 
-  const loadCart = async () => {
+  const handleCloseReceipt = async () => {
+    setShowReceipt(false);
+    setReceipt(null);
+    // Refresh cart after modal closes
+    await fetchCart();
+    onCartUpdate?.();
+  };
+
+  const fetchCart = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/cart");
-      const items = res.data.items || [];
-      setCartData(items);
-      setTotal(res.data.total || 0);
-    } catch (err) {
-      console.error("Error loading cart:", err);
+      const data = await getCart();
+      setCartData(data);
+    } catch (error) {
+      toast.error('Failed to load cart');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRemove = async (id) => {
+  const handleUpdateQuantity = async (itemId, currentQty, change) => {
     try {
-      await api.delete(`/cart/${id}`);
-      await loadCart();
-      fetchCart();
-      alert("Item removed from cart!");
-    } catch (err) {
-      console.error("Error removing item:", err);
+      setUpdating(itemId);
+      const item = cartData.items.find((i) => i.id === itemId);
+      
+      if (!item) {
+        throw new Error('Item not found in cart');
+      }
+
+      const newQty = currentQty + change;
+      
+      if (newQty <= 0) {
+        // If new quantity would be 0 or less, remove the item
+        await removeFromCart(itemId);
+        toast.success('Item removed from cart');
+      } else {
+        // For increment, send positive change
+        // For decrement, send negative change with absolute value
+        const updateQty = (change > 0) ? 1 : -1;
+        await addToCart(item.productId, updateQty);
+      }
+      
+      await fetchCart();
+      onCartUpdate?.();
+    } catch (error) {
+      console.error('Update quantity error:', error);
+      toast.error(error.response?.data?.error || 'Failed to update quantity');
+    } finally {
+      setUpdating(null);
     }
   };
 
-  const handleQtyChange = async (productId, newQty) => {
-    if (newQty < 1) return;
+  const handleRemoveItem = async (itemId) => {
     try {
-      await api.post("/cart", { productId, qty: newQty });
-      await loadCart();
-      fetchCart();
-    } catch (err) {
-      console.error("Error updating quantity:", err);
+      setUpdating(itemId);
+      await removeFromCart(itemId);
+      await fetchCart();
+      onCartUpdate?.();
+      toast.success('Item removed from cart');
+    } catch (error) {
+      toast.error('Failed to remove item');
+    } finally {
+      setUpdating(null);
     }
   };
 
   const handleCheckout = async (e) => {
     e.preventDefault();
+
     if (!formData.name || !formData.email) {
-      alert("Please enter your name and email.");
+      toast.error('Please fill in all fields');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      toast.error('Please enter a valid email address');
       return;
     }
 
     try {
-      const res = await api.post("/checkout", {
-        name: formData.name,
-        email: formData.email,
-        cartItems: cartData,
-      });
-
-      setReceipt(res.data.receipt);
+      setCheckingOut(true);
+      const response = await checkout(cartData.items);
+      setReceipt(response.receipt || response);
       setShowReceipt(true);
-      setFormData({ name: "", email: "" });
-      setCartData([]);
-      fetchCart();
-    } catch (err) {
-      console.error("Checkout error:", err);
-      alert("Checkout failed.");
+      setFormData({ name: '', email: '' });
+    } catch (error) {
+      console.error('Checkout error:', error);
+      toast.error('Checkout failed. Please try again.');
+    } finally {
+      setCheckingOut(false);
     }
   };
 
-  if (loading) return <p className="center">Loading your cart...</p>;
-  if (cartData.length === 0) return <p className="center">🛒 Your cart is empty!</p>;
+  if (loading) {
+    return <Loader message="Loading cart..." />;
+  }
+
+  if (cartData.items.length === 0) {
+    return <EmptyState type="cart" />;
+  }
 
   return (
-    <div className="container">
-      <h2>Your Cart</h2>
+    <div className="space-y-8">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h1 className="text-4xl sm:text-5xl font-bold text-foreground mb-2">Your Cart</h1>
+        <p className="text-muted-foreground">
+          {cartData.items.length} {cartData.items.length === 1 ? 'item' : 'items'} in your cart
+        </p>
+      </motion.div>
 
-      {cartData.map((item) => (
-        <div key={item.id} className="cart-item">
-          <span className="item-name">{item.name}</span>
-          <div className="qty-controls">
-            <button onClick={() => handleQtyChange(item.productId, item.qty - 1)}>−</button>
-            <input
-              type="number"
-              value={item.qty}
-              min="1"
-              onChange={(e) => handleQtyChange(item.productId, parseInt(e.target.value))}
-            />
-            <button onClick={() => handleQtyChange(item.productId, item.qty + 1)}>+</button>
-          </div>
-          <span>₹{item.price * item.qty}</span>
-          <button onClick={() => handleRemove(item.id)}>🗑</button>
+      <div className="grid lg:grid-cols-3 gap-8">
+        {/* Cart Items */}
+        <div className="lg:col-span-2 space-y-4">
+          {cartData.items.map((item, index) => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <Card className="overflow-hidden shadow-soft hover:shadow-medium transition-smooth">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    {/* Product Image Placeholder */}
+                    <div className="relative w-full sm:w-24 h-24 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
+                      <div className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-muted-foreground/20">
+                        {item.name.charAt(0)}
+                      </div>
+                    </div>
+
+                    {/* Product Info */}
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-foreground mb-1 truncate">
+                        {item.name}
+                      </h3>
+                      <p className="text-primary font-bold text-xl mb-3">
+                        {formatPrice(item.price)}
+                      </p>
+
+                      {/* Quantity Controls */}
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <div className="flex items-center gap-2 bg-muted rounded-lg p-1">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleUpdateQuantity(item.id, item.qty, -1)}
+                            disabled={updating === item.id || item.qty <= 1}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </Button>
+                          <span className="w-8 text-center font-semibold text-foreground">
+                            {item.qty}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleUpdateQuantity(item.id, item.qty, 1)}
+                            disabled={updating === item.id}
+                            className="h-8 w-8 p-0"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </Button>
+                        </div>
+
+                        <div className="text-sm text-muted-foreground">
+                          Subtotal: <span className="font-semibold text-foreground">{formatPrice(item.price * item.qty)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Remove Button */}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleRemoveItem(item.id)}
+                      disabled={updating === item.id}
+                      className="self-start text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          ))}
         </div>
-      ))}
 
-      <h3>Total: ₹{total}</h3>
+        {/* Checkout Form */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="lg:col-span-1"
+        >
+          <Card className="sticky top-24 shadow-medium border-border">
+            <CardHeader>
+              <CardTitle className="text-2xl">Order Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Total */}
+              <div className="space-y-3">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span>{formatPrice(cartData.total)}</span>
+                </div>
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Shipping</span>
+                  <span className="text-secondary font-medium">Free</span>
+                </div>
+                <Separator />
+                <div className="flex justify-between text-xl font-bold">
+                  <span>Total</span>
+                  <span className="text-primary">{formatPrice(cartData.total)}</span>
+                </div>
+              </div>
 
-      <form onSubmit={handleCheckout} className="checkout-form">
-        <input
-          type="text"
-          placeholder="Name"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={formData.email}
-          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-        />
-        <button type="submit">Checkout</button>
-      </form>
+              {/* Checkout Form */}
+              <form onSubmit={handleCheckout} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name" className="text-sm font-medium">
+                    Full Name
+                  </Label>
+                  <Input
+                    id="name"
+                    type="text"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="transition-smooth"
+                  />
+                </div>
 
-      {showReceipt && <ReceiptModal receipt={receipt} onClose={() => setShowReceipt(false)} />}
+                <div className="space-y-2">
+                  <Label htmlFor="email" className="text-sm font-medium">
+                    Email Address
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="your@email.com"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    className="transition-smooth"
+                  />
+                </div>
+              </form>
+            </CardContent>
+            <CardFooter>
+              <Button
+                onClick={handleCheckout}
+                disabled={checkingOut || !formData.name || !formData.email}
+                className="w-full gradient-primary text-primary-foreground shadow-medium hover:shadow-large transition-smooth"
+                size="lg"
+              >
+                <motion.span whileTap={{ scale: 0.95 }}>
+                  {checkingOut ? 'Processing...' : 'Proceed to Checkout'}
+                </motion.span>
+              </Button>
+            </CardFooter>
+          </Card>
+        </motion.div>
+      </div>
+
+      {/* Receipt Modal */}
+      <ReceiptModal
+        isOpen={showReceipt}
+        onClose={() => setShowReceipt(false)}
+        receipt={receipt}
+      />
     </div>
   );
-}
+};

@@ -8,8 +8,14 @@ import CartItem from "../models/CartItem.js";
 export async function addToCart(req, res, next) {
   try {
     const { productId, qty } = req.body;
-    if (!productId || typeof qty !== "number" || qty <= 0) {
+    if (!productId || typeof qty !== "number") {
       return res.status(400).json({ error: "Invalid productId or qty" });
+    }
+
+    // Validate persistence
+    const isStoreReady = await CartItem.validateStore();
+    if (!isStoreReady) {
+      return res.status(503).json({ error: "Cart storage is unavailable" });
     }
 
     // Validate product exists
@@ -18,14 +24,25 @@ export async function addToCart(req, res, next) {
       return res.status(400).json({ error: "Product not found" });
     }
 
-    // If exists increment, else create
+    // If exists update, else create
     let item = await CartItem.findByProductId(productId);
     if (item) {
-      item.qty += qty;
-      item = await CartItem.update(item.id, { qty: item.qty });
+      const newQty = item.qty + qty;
+      // Don't allow negative quantities
+      if (newQty <= 0) {
+        // If quantity would be 0 or negative, remove the item
+        await CartItem.remove(item.id);
+        console.log(`[api] POST /api/cart - removed item ${item.id} due to zero/negative qty`);
+        return res.json({ removed: true, id: item.id });
+      }
+      
+      item = await CartItem.update(item.id, { qty: newQty });
       console.log(`[api] POST /api/cart - updated cart item ${item.id} qty=${item.qty}`);
       return res.json(item);
     } else {
+      if (qty <= 0) {
+        return res.status(400).json({ error: "Cannot add item with zero or negative quantity" });
+      }
       const created = await CartItem.create({ productId, qty });
       console.log(`[api] POST /api/cart - added cart item ${created.id} productId=${productId} qty=${qty}`);
       return res.status(201).json(created);

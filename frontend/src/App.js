@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-//import { Toaster } from '@/components/ui/sonner';
-import Navbar from '../src/components/Navbar';
-import Products from '../src/pages/Products';
-import Cart from '../src/pages/Cart';
-import getCart from '../src/api/api';
+import { Toaster } from '@/components/ui/sonner';
+import { Navbar } from '@/components/Navbar';
+import { Products } from '@/pages/Products';
+import { Cart } from '@/pages/Cart';
+import { getCart } from '@/api/api';
 import './App.css';
 
 function App() {
@@ -34,7 +34,7 @@ function App() {
             <Route path="/cart" element={<Cart onCartUpdate={updateCartCount} />} />
           </Routes>
         </main>
-        {/* <Toaster position="top-right" richColors closeButton /> */}
+        <Toaster position="top-right" richColors closeButton />
       </div>
     </BrowserRouter>
   );

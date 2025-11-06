@@ -1,5 +1,7 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Package } from 'lucide-react';
+
 export const Loader = ({ message = 'Loading...' }) => {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] gap-6">
