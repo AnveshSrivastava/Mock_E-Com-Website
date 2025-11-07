@@ -1,413 +1,143 @@
-# 🛒 Mock E-Com Cart"# Mock E-Commerce Cart Application
+## 🛒 Mock E‑Com Cart
 
+Clean, full‑stack shopping cart demo built for Vibe Commerce screening. It showcases a minimal but production‑style implementation of product listing, cart management, and a mock checkout flow with a React frontend and a Node.js/Express backend. Data persists via MongoDB with an automatic in‑memory fallback.
 
+### Live Preview / Screenshots
+- Homepage (Product Grid): `./screenshots/products.png`
+- Cart Page: `./screenshots/cart.png`
+- Checkout Receipt: `./screenshots/receipt.png`
 
-A modern, full-stack e-commerce cart application built with React and Node.js. This project demonstrates building a responsive shopping interface with real-time cart management, state persistence, and mock checkout flow.A full-stack shopping cart application built with React (Vite) and Node.js/Express, featuring product listing, cart management, and mock checkout functionality.
+---
 
+## ✨ Key Features
+- **Product catalog**: Responsive grid with “Add to Cart”
+- **Cart management**: Add/remove items, quantity +/- controls, total calculation
+- **Mock checkout**: Simple form (name, email) and receipt modal (id, total, timestamp)
+- **State management**: React Context for global cart state
+- **API design**: Clean REST endpoints with validation and error handling
+- **Persistence**: MongoDB (via Mongoose) with transparent in‑memory fallback
+- **Polish**: Toast feedback, smooth UI transitions, type‑safe data flows
 
+## 🧰 Tech Stack
+- **Frontend**: React, Vite, Axios, Tailwind CSS, Shadcn/UI, Framer Motion, Lucide Icons
+- **Backend**: Node.js, Express.js, MongoDB (Mongoose), dotenv, Nodemon
+- **Tooling**: concurrently, ESLint, Git + GitHub
 
-![Products Grid](./screenshots/products.png)## 🚀 Features
-
-![Cart Page](./screenshots/cart.png)
-
-![Checkout Modal](./screenshots/receipt.png)- Product listing with add to cart functionality
-
-- Cart management (add, remove, update quantity)
-
-## ✨ Key Features- Mock checkout process with receipt generation
-
-- Responsive design with Tailwind CSS and Framer Motion animations
-
-- **Product Catalog**: Responsive grid layout with add-to-cart functionality- REST API backend with MongoDB/In-memory storage
-
-- **Cart Management**: Real-time updates, quantity controls, item removal- Optimistic concurrency control for cart operations
-
-- **Checkout Process**: Form validation, mock payment, receipt generation- Comprehensive error handling and recovery
-
-- **Responsive Design**: Mobile-first UI with smooth animations- Unit and integration tests
-
-- **Data Persistence**: MongoDB integration with in-memory fallback
-
-- **Error Handling**: Comprehensive error states and user feedback## 📋 Prerequisites
-
-
-
-## 🛠️ Tech Stack- Node.js >= 14.x
-
-- npm >= 6.x
-
-### Frontend- MongoDB (optional)
-
-- **Framework**: React 18 with Vite
-
-- **State Management**: React Context API## 🛠️ Installation
-
-- **Styling**: Tailwind CSS + Shadcn/UI components
-
-- **Animations**: Framer Motion### Backend Setup
-
-- **HTTP Client**: Axios
-
-- **Icons**: Lucide Icons```bash
-
-cd backend
-
-### Backendnpm install
-
-- **Runtime**: Node.js with Express
-
-- **Database**: MongoDB with Mongoose ODM# Create .env file with:
-
-- **Architecture**: MVC pattern with RESTful APIsPORT=3000
-
-- **Persistence**: Dual-mode (MongoDB/In-memory)MONGO_URL=mongodb://localhost:27017/mock-ecom (optional)
-
-
-
-## 🔌 API Endpoints# Run tests
-
-npm test
-
-### Products
-
-```http# Start development server
-
-GET /api/productsnpm run dev
-
-``````
-
-Returns array of products with `id`, `name`, and `price`.
-
-### Frontend Setup
-
-### Cart
-
-```http```bash
-
-GET /api/cartcd frontend
-
-POST /api/cart         # body: { productId, qty }npm install
-
-DELETE /api/cart/:id
-
-```# Create .env file with:
-
-Manages cart state with optimistic updates and version control.VITE_API_URL=http://localhost:3000
-
-
-
-### Checkout# Start development server
-
-```httpnpm run dev
-
-POST /api/checkout     # body: { cartItems }```
-
+## 🧱 Project Structure
+```
+mock-ecom-cart/
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── db/
+│   │   ├── routes/
+│   │   └── index.js
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── context/
+│   │   └── api/
+│   └── package.json
+├── README.md
+└── .env.example
 ```
 
-Processes order and returns receipt with `total` and `timestamp`.## 🔌 API Documentation
-
-
-
-## 🚀 Getting Started### Products API
-
-
-
-### Prerequisites#### GET /api/products
-
-- Node.js >= 14.xReturns list of available products.
-
-- npm >= 6.x
-
-- MongoDB (optional)Response:
-
-```json
-
-### Installation[
-
-  {
-
-1. Clone the repository:    "id": "string",
-
-   ```bash    "name": "string",
-
-   git clone https://github.com/AnveshSrivastava/mock-ecom-cart.git    "price": "number"
-
-   cd mock-ecom-cart  }
-
-   ```]
-
-```
-
-2. Install dependencies:
-
-   ```bash### Cart API
-
-   # Backend
-
-   cd backend#### GET /api/cart
-
-   npm installReturns current cart items and total.
-
-
-
-   # FrontendResponse:
-
-   cd ../frontend```json
-
-   npm install{
-
-   ```  "items": [
-
-    {
-
-3. Environment Setup:      "id": "string",
-
-   ```bash      "productId": "string",
-
-   # Backend (.env)      "name": "string",
-
-   MONGO_URI=mongodb://localhost:27017/mock-ecom      "price": "number",
-
-   PORT=4000      "qty": "number",
-
-      "lineTotal": "number"
-
-   # Frontend (.env)    }
-
-   VITE_API_URL=http://localhost:4000  ],
-
-   ```  "total": "number"
-
-}
-
-4. Start the development servers:```
-
-   ```bash
-
-   # Backend#### POST /api/cart
-
-   cd backendAdd/update cart item.
-
-   npm run dev
-
-Request:
-
-   # Frontend (new terminal)```json
-
-   cd frontend{
-
-   npm run dev  "productId": "string",
-
-   ```  "qty": "number"
-
-}
-
-5. Visit:```
-
-   - Frontend: [http://localhost:5173](http://localhost:5173)
-
-   - API: [http://localhost:4000/api/products](http://localhost:4000/api/products)#### DELETE /api/cart/:id
-
-Remove item from cart.
-
-## 🏗️ Architecture
-
-### Checkout API
-
-### Frontend Structure
-
-```#### POST /api/checkout
-
-frontend/Process checkout and generate receipt.
-
-├── src/
-
-│   ├── components/   # Reusable UI componentsRequest:
-
-│   ├── pages/       # Route components```json
-
-│   ├── context/     # Global state management{
-
-│   ├── api/         # API integration  "cartItems": [
-
-│   └── utils/       # Helper functions    {
-
-```      "productId": "string",
-
-      "qty": "number"
-
-### Backend Structure    }
-
-```  ]
-
-backend/}
-
-├── src/```
-
-│   ├── controllers/ # Request handlers
-
-│   ├── models/     # Data modelsResponse:
-
-│   ├── routes/     # API routes```json
-
-│   ├── db/        # Database configuration{
-
-│   └── middleware/ # Express middleware  "receiptId": "string",
-
-```  "total": "number",
-
-  "timestamp": "string"
-
-## 🧪 Testing API Endpoints}
-
-```
-
-### Using Postman/Insomnia
-
-1. Import the provided collection: `docs/mock-ecom.postman.json`## 🧪 Testing
-
-2. Set environment variable: `baseUrl=http://localhost:4000`
-
-The project includes comprehensive test coverage for both backend and frontend:
-
-### Example Requests
-
-```bash### Backend Tests
-
-# Get all products- Unit tests for models
-
-curl http://localhost:4000/api/products- Integration tests for API endpoints
-
-- Concurrency testing for cart operations
-
-# Add item to cart- Edge case handling tests
-
+## 🧩 Architecture Overview
+- **Frontend** (React): Fetches products and cart data from the backend. Uses Context to manage cart state and synchronize with APIs. Optimistic UI updates with error recovery.
+- **Backend** (Express): Exposes product, cart, and checkout endpoints. Validates inputs, manages concurrency and totals, and issues a mock receipt.
+- **Persistence**: Mongoose models backed by MongoDB. If MongoDB is unavailable, an in‑memory store is used for development/demo without changing the API surface.
+
+## 🔌 Backend APIs
+- `GET /api/products` → List of products `{ id, name, price }`
+- `GET /api/cart` → Current items and computed totals
+- `POST /api/cart` → Add/update item `{ productId, qty }`
+- `DELETE /api/cart/:id` → Remove an item from cart
+- `POST /api/checkout` → Process mock checkout, returns receipt `{ receiptId, total, timestamp }`
+
+Example requests:
+
+```bash
+# List products
+curl http://localhost:4000/api/products
+
+# Add an item to cart
 curl -X POST http://localhost:4000/api/cart \
+  -H "Content-Type: application/json" \
+  -d '{"productId":"<productId>","qty":2}'
 
-  -H "Content-Type: application/json" \Run tests with:
+# Get cart
+curl http://localhost:4000/api/cart
 
-  -d '{"productId":"123","qty":1}'```bash
+# Remove item from cart
+curl -X DELETE http://localhost:4000/api/cart/<cartItemId>
 
-```cd backend
-
-npm test
-
-## 🔒 Error Handling```
-
-
-
-- **Frontend**:### Frontend Tests
-
-  - Loading states for async operations- Component testing with React Testing Library
-
-  - Toast notifications for user feedback- API integration tests
-
-  - Form validation with error messages- UI interaction tests
-
-  - Network error recovery
-
-Run tests with:
-
-- **Backend**:```bash
-
-  - Validation middleware for requestscd frontend
-
-  - Error handling middlewarenpm test
-
-  - Database connection fallback```
-
-  - Concurrent update protection
-
-## 🔒 Error Handling
-
-## 🎯 Future Improvements
-
-The application implements comprehensive error handling:
-
-- [ ] User authentication & session management
-
-- [ ] Product categories and search1. API Errors:
-
-- [ ] Real payment gateway integration   - Input validation
-
-- [ ] Order history   - Product availability checks
-
-- [ ] Admin dashboard   - Quantity validation
-
-- [ ] E2E tests with Cypress   - Network error recovery
-
-- [ ] CI/CD pipeline setup   - Concurrency control
-
-
-
-## 👨‍💻 Author2. Frontend Error Handling:
-
-   - API error toasts
-
-**Anvesh Srivastava**   - Loading states
-
-- GitHub: [@AnveshSrivastava](https://github.com/AnveshSrivastava)   - Network error recovery
-
-- LinkedIn: [Anvesh Srivastava](https://linkedin.com/in/anveshsrivastava)   - Form validation
-
-
-
-## 📄 License## 💾 Data Persistence
-
-
-
-This project is open source and available under the [MIT License](LICENSE).The application supports two storage modes:
-
-1. MongoDB (Recommended):
-   - Set MONGO_URL in backend .env
-   - Persistent across server restarts
-   - Optimistic concurrency control
-   - Atomic operations
-
-2. In-Memory (Fallback):
-   - Automatic fallback if MongoDB unavailable
-   - Data persists until server restart
-   - Simulated concurrency control
-   - Suitable for development/testing
-
-## 🏗️ Project Structure
-
-```
-/mock-ecom-cart
-├── /backend
-│   ├── /src
-│   │   ├── /controllers    # Request handlers
-│   │   ├── /models         # Data models
-│   │   ├── /middleware     # Express middleware
-│   │   └── /db            # Database connection
-│   └── /tests              # Backend tests
-├── /frontend
-│   ├── /src
-│   │   ├── /api           # API client
-│   │   ├── /components    # React components
-│   │   ├── /pages         # Route pages
-│   │   └── /utils         # Helper functions
-│   └── /tests             # Frontend tests
+# Checkout
+curl -X POST http://localhost:4000/api/checkout \
+  -H "Content-Type: application/json" \
+  -d '{"cartItems":[{"productId":"<productId>","qty":2}]}'
 ```
 
-## 🔄 State Management
+## 🎨 Frontend Features
+- Responsive product grid with accessible “Add to Cart” buttons
+- Cart page with quantity controls, removal, line totals, and grand total
+- Checkout form (name, email) that triggers a receipt modal
+- Toast notifications and animated transitions (Framer Motion)
+- Context API for reliable global cart state
 
-- Server: MongoDB/In-memory store with optimistic concurrency
-- Frontend: React Context for cart state
-- API: RESTful endpoints with proper error handling
+## ⚙️ Setup (Local Development)
+1) Clone the repository
 
-## 🚦 Known Limitations
+```bash
+git clone https://github.com/<username>/mock-ecom-cart.git
+cd mock-ecom-cart
+```
 
-1. No user authentication/sessions
-2. In-memory mode loses data on server restart
-3. No real payment processing
-4. Limited product metadata
+2) Install dependencies
 
-## 🛣️ Future Improvements
+```bash
+cd backend && npm install
+cd ../frontend && npm install
+```
 
-1. User authentication
-2. Session persistence
-3. Real payment integration
-4. Product categories and search
-5. Order history
-6. E2E testing with Cypress" 
+3) Configure environment variables (backend)
+
+Create a `.env` file inside `backend/` (or copy `.env.example`):
+
+```bash
+MONGO_URI=mongodb+srv://<your_connection_string>
+PORT=4000
+```
+
+4) Run backend and frontend together
+
+```bash
+npm run dev
+```
+
+Visit the frontend at `http://localhost:3000` and the API at `http://localhost:4000/api/products`.
+
+## 💾 Data & Utilities
+- **In‑memory fallback**: If MongoDB is not connected, the backend uses an in‑memory store (non‑persistent; resets on restart).
+- **Seed script**: Populate sample products via `backend/src/db/seed.js`.
+- **Logging & errors**: Consistent validation and error responses across the backend; console logs for development insight.
+
+## 🧪 Testing Endpoints (Optional)
+You can quickly verify APIs with Postman/Insomnia or cURL (see examples above). Suggested environment base URL: `http://localhost:4000`.
+
+## 💡 Future Improvements
+- Authentication & sessions
+- Product categories, search, and filters
+- Real payment gateway integration
+- Order history and receipts list
+- Admin dashboard for products and inventory
+- E2E tests (Cypress) and CI/CD workflows
+
+## 👨‍💻 Author
+**Anvesh Srivastava**  
+[GitHub @AnveshSrivastava](https://github.com/AnveshSrivastava) · [LinkedIn: Anvesh Srivastava](https://linkedin.com/in/anveshsrivastava)
+
+## 📄 License
+This project is open‑source under the [MIT License](LICENSE).
