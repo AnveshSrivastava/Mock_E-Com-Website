@@ -1,8 +1,25 @@
-# Getting Started with Create React App
+# Mock E-Com Cart Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+React frontend for the Mock E-Com Cart application. Built with Vite, Tailwind CSS, and Framer Motion.
 
-## Available Scripts
+## Features
+
+- Responsive product grid with smooth animations
+- Real-time cart management
+- Interactive checkout process
+- Toast notifications
+- Mobile-first design
+
+## Tech Stack
+
+- **React 18** - UI Framework
+- **Tailwind CSS** - Styling
+- **Shadcn/UI** - Component Library
+- **Framer Motion** - Animations
+- **Axios** - HTTP Client
+- **Vite** - Build Tool
+
+## Development
 
 In the project directory, you can run:
 
