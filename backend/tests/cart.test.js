@@ -1,6 +1,6 @@
 import request from 'supertest';
 import { app } from '../src/app';
-import { connectToDatabase, clearDatabase } from '../src/db/connect';
+import { connectToDatabase, clearDatabase } from '../db/connect';
 import Product from '../src/models/Product';
 
 describe('Cart Controller', () => {

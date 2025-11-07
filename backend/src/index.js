@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import routes from "./routes.js";
-import { connectToDatabase, inMemoryStore } from "./db/connect.js";
+import { connectToDatabase, inMemoryStore } from "../src/db/connect.js";
 import errorHandler from "./middleware/errorHandler.js";
 import Product from "./models/Product.js";
 

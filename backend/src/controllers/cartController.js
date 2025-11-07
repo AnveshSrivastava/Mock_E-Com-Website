@@ -1,5 +1,6 @@
 import Product from "../models/Product.js";
 import CartItem from "../models/CartItem.js";
+import mongoose from "mongoose";
 
 /**
  * POST /api/cart
@@ -8,49 +9,71 @@ import CartItem from "../models/CartItem.js";
 export async function addToCart(req, res, next) {
   try {
     const { productId, qty } = req.body;
+
+    // 🔍 Validate request
     if (!productId || typeof qty !== "number") {
       return res.status(400).json({ error: "Invalid productId or qty" });
     }
 
-    // Validate persistence
+    // 🔧 Validate storage availability
     const isStoreReady = await CartItem.validateStore();
     if (!isStoreReady) {
       return res.status(503).json({ error: "Cart storage is unavailable" });
     }
 
-    // Validate product exists
+    // 🧩 Validate product exists
     const product = await Product.findByIdSimple(productId);
     if (!product) {
       return res.status(400).json({ error: "Product not found" });
     }
 
-    // If exists update, else create
-    let item = await CartItem.findByProductId(productId);
-    if (item) {
+    // 🧠 Normalize productId to ObjectId (Mongo-safe)
+    const queryId = mongoose.Types.ObjectId.isValid(productId)
+      ? new mongoose.Types.ObjectId(productId)
+      : productId;
+
+    // 🛒 Try to find existing cart item
+    let item = await CartItem.findByProductId(queryId);
+
+    if (item && item.id) {
       const newQty = item.qty + qty;
-      // Don't allow negative quantities
+
+      // 🚫 Prevent zero/negative quantities
       if (newQty <= 0) {
-        // If quantity would be 0 or negative, remove the item
         await CartItem.remove(item.id);
-        console.log(`[api] POST /api/cart - removed item ${item.id} due to zero/negative qty`);
+        console.log(
+          `[api] POST /api/cart - removed item ${item.id} (qty <= 0)`
+        );
         return res.json({ removed: true, id: item.id });
       }
-      
-      item = await CartItem.update(item.id, { qty: newQty });
-      console.log(`[api] POST /api/cart - updated cart item ${item.id} qty=${item.qty}`);
-      return res.json(item);
-    } else {
-      if (qty <= 0) {
-        return res.status(400).json({ error: "Cannot add item with zero or negative quantity" });
-      }
-      const created = await CartItem.create({ productId, qty });
-      console.log(`[api] POST /api/cart - added cart item ${created.id} productId=${productId} qty=${qty}`);
-      return res.status(201).json(created);
+
+      // ✅ Update item quantity safely
+      const updated = await CartItem.update(item.id, { qty: newQty }, item.version);
+      console.log(
+        `[api] POST /api/cart - updated item ${updated.id} → qty=${updated.qty}`
+      );
+      return res.json(updated);
     }
+
+    // 🆕 No existing item — create a new cart record
+    if (qty <= 0) {
+      return res
+        .status(400)
+        .json({ error: "Cannot add item with zero or negative quantity" });
+    }
+
+    const created = await CartItem.create({ productId: queryId, qty });
+    console.log(
+      `[api] POST /api/cart - added new item ${created.id} (productId=${productId}, qty=${qty})`
+    );
+
+    return res.status(201).json(created);
   } catch (err) {
+    console.error("[api] addToCart error:", err);
     next(err);
   }
 }
+
 
 /**
  * DELETE /api/cart/:id

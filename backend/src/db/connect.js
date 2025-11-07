@@ -19,7 +19,7 @@ export const inMemoryStore = {
 let isConnected = false;
 
 export async function connectToDatabase() {
-  const MONGO_URL = process.env.MONGO_URL;
+  const MONGO_URL = process.env.MONGO_URI;
   if (!MONGO_URL) {
     console.log("[db] No MONGO_URL provided — running in in-memory mode.");
     isConnected = false;

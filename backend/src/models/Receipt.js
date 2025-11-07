@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { isMongoConnected, inMemoryStore } from "../db/connect.js";
+import { isMongoConnected, inMemoryStore } from "../db/connect.js"
 
 let ReceiptModel;
 

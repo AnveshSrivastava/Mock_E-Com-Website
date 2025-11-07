@@ -31,24 +31,25 @@ export const getCart = async () => {
 export const updateCartQuantity = async (productId, qty) => {
   try {
     // If qty is negative, we need to handle it as a removal
-    if (qty < 0) {
-      const cart = await getCart();
-      const cartItem = cart.items.find(item => item.productId === productId);
-      if (cartItem) {
-        if (cartItem.qty + qty <= 0) {
-          // If new quantity would be 0 or negative, remove the item
-          return removeFromCart(cartItem.id);
-        } else {
-          // Otherwise update with absolute value
-          const response = await api.post('/cart', { 
-            productId, 
-            qty: qty // Send positive value
-          });
-          return response.data;
-        }
-      }
-      throw new Error('Item not found in cart');
-    }
+    // if (qty < 0) {
+    //   const cart = await getCart();
+    //   const cartItem = cart.items.find(item => item.productId === productId);
+    //   if (cartItem) {
+    //     if (cartItem.qty + qty <= 0) {
+    //       // If new quantity would be 0 or negative, remove the item
+    //       return removeFromCart(cartItem._id);
+    //     } else {
+    //       // Otherwise update with absolute value
+    //       const response = await api.post('/cart', { 
+    //         productId, 
+    //         qty: qty // Send positive value
+    //       });
+    //       return response.data;
+    //     }
+    //   }
+    //   throw new Error('Item not found in cart');
+    //}
+  
     
     // For positive quantities, proceed normally
     const response = await api.post('/cart', { productId, qty });

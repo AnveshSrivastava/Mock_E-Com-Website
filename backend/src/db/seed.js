@@ -1,7 +1,7 @@
 // backend/seed.js
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import ProductModel from "./src/models/Product.js";
+import ProductModel from "../models/Product.js";
 dotenv.config();
 
 const MONGO_URI = process.env.MONGO_URI;

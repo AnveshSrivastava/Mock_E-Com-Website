@@ -1,71 +1,95 @@
 import mongoose from "mongoose";
 import { isMongoConnected, inMemoryStore } from "../db/connect.js";
 
-let ProductModel;
+let MongooseModel = null;
 
-if (isMongoConnected()) {
-  const schema = new mongoose.Schema({
-    name: { type: String, required: true },
-    price: { type: Number, required: true }
-  });
+// Create schema once for re-use
+const schema = new mongoose.Schema({
+  name: { type: String, required: true },
+  price: { type: Number, required: true }
+});
 
-  const MongooseModel = mongoose.models.Product || mongoose.model("Product", schema);
+function getMongooseModel() {
+  // Always create or return the mongoose model. Creating the model
+  // before a live connection is safe — mongoose will use it once
+  // the connection is established. We still guard DB operations
+  // with try/catch and fall back to the in-memory store on error.
+  if (!MongooseModel) {
+    MongooseModel = mongoose.models.Product || mongoose.model("Product", schema);
+  }
+  return MongooseModel;
+}
 
-  ProductModel = {
-    async findAll() {
-      const docs = await MongooseModel.find().lean();
-      return docs.map(d => ({ id: d._id.toString(), name: d.name, price: d.price }));
-    },
-    async findByIdSimple(id) {
-      try {
-        const doc = await MongooseModel.findById(id).lean();
-        return doc ? { id: doc._id.toString(), name: doc.name, price: doc.price } : null;
-      } catch {
-        return null;
-      }
-    },
-    async insertMany(arr) {
-      return MongooseModel.insertMany(arr);
-    },
-    async countDocuments() {
-      return MongooseModel.countDocuments();
-    },
-    async create(obj) {
-      const doc = await MongooseModel.create(obj);
-      return { id: doc._id.toString(), name: doc.name, price: doc.price };
-    }
-  };
-} else {
-  const generateId = (prefix = "p") =>
-    `${prefix}${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
-
-  ProductModel = {
-    async findAll() {
+const ProductModel = {
+  async findAll() {
+    const model = getMongooseModel();
+    try {
+      const docs = await model.find().lean();
+      return docs.map(d => ({ id: d._1?._id?.toString ? d._id.toString() : d._id, name: d.name, price: d.price }));
+    } catch (err) {
+      // fallback to in-memory store
       return inMemoryStore.products.map(p => ({ id: p.id, name: p.name, price: p.price }));
-    },
-    async findByIdSimple(id) {
+    }
+  },
+
+  async findByIdSimple(id) {
+    const model = getMongooseModel();
+    try {
+      const doc = await model.findById(id).lean();
+      return doc ? { id: doc._id.toString(), name: doc.name, price: doc.price } : null;
+    } catch (err) {
       const found = inMemoryStore.products.find(p => p.id === id);
       return found ? { id: found.id, name: found.name, price: found.price } : null;
-    },
-    async insertMany(arr) {
-      const inserted = arr.map(a => {
-        const id = a.id ?? generateId("p");
-        const rec = { id, name: a.name, price: a.price };
-        inMemoryStore.products.push(rec);
-        return rec;
-      });
+    }
+  },
+
+  async insertMany(arr) {
+    const model = getMongooseModel();
+    try {
+      const docs = await model.insertMany(arr);
+      return docs.map(d => ({ id: d._id.toString(), name: d.name, price: d.price }));
+    } catch (err) {
+      const inserted = arr.map(a => ({
+        id: `p${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`,
+        ...a
+      }));
+      inMemoryStore.products.push(...inserted);
       return inserted;
-    },
-    async countDocuments() {
+    }
+  },
+
+  async countDocuments() {
+    const model = getMongooseModel();
+    try {
+      return await model.countDocuments();
+    } catch (err) {
       return inMemoryStore.products.length;
-    },
-    async create(obj) {
-      const id = obj.id ?? generateId("p");
+    }
+  },
+
+  async create(obj) {
+    const model = getMongooseModel();
+    try {
+      const doc = await model.create(obj);
+      return { id: doc._id.toString(), name: doc.name, price: doc.price };
+    } catch (err) {
+      const id = `p${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
       const rec = { id, name: obj.name, price: obj.price };
       inMemoryStore.products.push(rec);
       return rec;
     }
-  };
-}
+  },
+
+  async deleteMany() {
+    const model = getMongooseModel();
+    try {
+      await model.deleteMany({});
+      return true;
+    } catch (err) {
+      inMemoryStore.products = [];
+      return true;
+    }
+  }
+};
 
 export default ProductModel;
