@@ -82,19 +82,19 @@ const products = [
 
 async function seedDatabase() {
   try {
-    console.log("🚀 Connecting to MongoDB...");
+    console.log("Connecting to MongoDB...");
     await mongoose.connect(MONGO_URI);
 
-    console.log("🧹 Clearing existing products...");
+    console.log("Clearing existing products...");
     await ProductModel.deleteMany({});
 
-    console.log("🌱 Inserting new products...");
+    console.log("Inserting new products...");
     await ProductModel.insertMany(products);
 
-    console.log("✅ Database seeded successfully!");
+    console.log("Database seeded successfully!");
     process.exit(0);
   } catch (error) {
-    console.error("❌ Error seeding database:", error);
+    console.error("Error seeding database:", error);
     process.exit(1);
   }
 }

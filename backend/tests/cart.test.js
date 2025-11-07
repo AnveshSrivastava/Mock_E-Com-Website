@@ -10,7 +10,6 @@ describe('Cart Controller', () => {
 
   beforeEach(async () => {
     await clearDatabase();
-    // Seed test product
     await Product.create({
       id: 'test-product-1',
       name: 'Test Product',
@@ -34,15 +33,12 @@ describe('Cart Controller', () => {
     });
 
     it('should update existing cart item quantity', async () => {
-      // First add
       const add = await request(app)
         .post('/api/cart')
         .send({
           productId: 'test-product-1',
           qty: 1
         });
-
-      // Then update
       const res = await request(app)
         .post('/api/cart')
         .send({
@@ -67,15 +63,12 @@ describe('Cart Controller', () => {
     });
 
     it('should handle negative quantities', async () => {
-      // First add positive qty
       await request(app)
         .post('/api/cart')
         .send({
           productId: 'test-product-1',
           qty: 2
         });
-
-      // Then try negative
       const res = await request(app)
         .post('/api/cart')
         .send({
@@ -98,7 +91,6 @@ describe('Cart Controller', () => {
     });
 
     it('should return cart with items and total', async () => {
-      // Add item first
       await request(app)
         .post('/api/cart')
         .send({
@@ -118,7 +110,6 @@ describe('Cart Controller', () => {
 
   describe('DELETE /api/cart/:id', () => {
     it('should remove item from cart', async () => {
-      // Add item first
       const add = await request(app)
         .post('/api/cart')
         .send({
@@ -130,8 +121,6 @@ describe('Cart Controller', () => {
         .delete(`/api/cart/${add.body.id}`);
 
       expect(res.status).toBe(200);
-
-      // Verify cart is empty
       const cart = await request(app).get('/api/cart');
       expect(cart.body.items).toHaveLength(0);
     });

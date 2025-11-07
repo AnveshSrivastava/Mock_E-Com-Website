@@ -11,7 +11,6 @@ describe('Checkout Controller', () => {
 
   beforeEach(async () => {
     await clearDatabase();
-    // Seed test product
     await Product.create({
       id: 'test-product-1',
       name: 'Test Product',
@@ -31,7 +30,6 @@ describe('Checkout Controller', () => {
     });
 
     it('should process checkout with items', async () => {
-      // Add items to cart first
       await request(app)
         .post('/api/cart')
         .send({
@@ -47,14 +45,12 @@ describe('Checkout Controller', () => {
       expect(res.body).toHaveProperty('receiptId');
       expect(res.body).toHaveProperty('total', 19.98);
       expect(res.body).toHaveProperty('timestamp');
-
-      // Verify cart is cleared
       const cart = await request(app).get('/api/cart');
       expect(cart.body.items).toHaveLength(0);
     });
 
     it('should handle concurrent checkouts', async () => {
-      // Add items to cart
+
       await request(app)
         .post('/api/cart')
         .send({
@@ -62,7 +58,6 @@ describe('Checkout Controller', () => {
           qty: 1
         });
 
-      // Start multiple concurrent checkouts
       const checkouts = Array(3).fill().map(() => 
         request(app)
           .post('/api/checkout')
@@ -71,20 +66,16 @@ describe('Checkout Controller', () => {
 
       const results = await Promise.all(checkouts);
       
-      // Only first checkout should succeed
       const success = results.filter(r => r.status === 200);
       const failed = results.filter(r => r.status === 400);
       
       expect(success).toHaveLength(1);
       expect(failed).toHaveLength(2);
-      
-      // Verify cart is cleared
       const cart = await request(app).get('/api/cart');
       expect(cart.body.items).toHaveLength(0);
     });
 
     it('should validate cart items consistency', async () => {
-      // Add item to cart
       await request(app)
         .post('/api/cart')
         .send({
@@ -92,13 +83,12 @@ describe('Checkout Controller', () => {
           qty: 1
         });
 
-      // Try to checkout with modified cart items
       const res = await request(app)
         .post('/api/checkout')
         .send({
           cartItems: [{
             productId: 'test-product-1',
-            qty: 100 // Different quantity than in cart
+            qty: 100
           }]
         });
 

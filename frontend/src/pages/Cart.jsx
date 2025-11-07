@@ -32,7 +32,6 @@ export const Cart = ({ onCartUpdate }) => {
   const handleCloseReceipt = async () => {
     setShowReceipt(false);
     setReceipt(null);
-    // Refresh cart after modal closes
     await fetchCart();
     onCartUpdate?.();
   };
@@ -61,12 +60,9 @@ export const Cart = ({ onCartUpdate }) => {
       const newQty = currentQty + change;
       
       if (newQty <= 0) {
-        // If new quantity would be 0 or less, remove the item
         await removeFromCart(itemId);
         toast.success('Item removed from cart');
       } else {
-        // For increment, send positive change
-        // For decrement, send negative change with absolute value
         const updateQty = (change > 0) ? 1 : -1;
         await addToCart(item.productId, updateQty);
       }
@@ -132,7 +128,6 @@ export const Cart = ({ onCartUpdate }) => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -156,7 +151,7 @@ export const Cart = ({ onCartUpdate }) => {
               <Card className="overflow-hidden shadow-soft hover:shadow-medium transition-smooth">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col sm:flex-row gap-4">
-                    {/* Product Image Placeholder */}
+                    {/* Product Images */}
                     <div className="relative w-full sm:w-24 h-24 rounded-lg bg-muted overflow-hidden flex-shrink-0">
                       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
                       <div className="absolute inset-0 flex items-center justify-center text-3xl font-bold text-muted-foreground/20">
@@ -233,7 +228,6 @@ export const Cart = ({ onCartUpdate }) => {
               <CardTitle className="text-2xl">Order Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Total */}
               <div className="space-y-3">
                 <div className="flex justify-between text-muted-foreground">
                   <span>Subtotal</span>
@@ -296,8 +290,6 @@ export const Cart = ({ onCartUpdate }) => {
           </Card>
         </motion.div>
       </div>
-
-      {/* Receipt Modal */}
       <ReceiptModal
         isOpen={showReceipt}
         onClose={() => setShowReceipt(false)}

@@ -2,10 +2,15 @@
 
 Clean, full‑stack shopping cart demo built for Vibe Commerce screening. It showcases a minimal but production‑style implementation of product listing, cart management, and a mock checkout flow with a React frontend and a Node.js/Express backend. Data persists via MongoDB with an automatic in‑memory fallback.
 
-### Live Preview / Screenshots
-- Homepage (Product Grid): `./screenshots/products.png`
-- Cart Page: `./screenshots/cart.png`
-- Checkout Receipt: `./screenshots/receipt.png`
+### Screenshots
+- **Homepage (Product Grid):**  
+  ![Homepage](https://github.com/AnveshSrivastava/Mock_E-Com-Website/blob/main/screenshots/products.png)
+
+- **Cart Page:**  
+  ![Cart](https://github.com/AnveshSrivastava/Mock_E-Com-Website/blob/main/screenshots/cart.png)
+
+- **Checkout Receipt:**  
+  ![Receipt](https://github.com/AnveshSrivastava/Mock_E-Com-Website/blob/main/screenshots/receipt.png)
 
 ---
 

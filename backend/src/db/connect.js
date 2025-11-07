@@ -1,19 +1,12 @@
-/**
- * connect.js
- * - Attempt to connect to MongoDB using MONGO_URL from env
- * - Export: connectToDatabase() -> returns true if mongo connected
- * - Export: inMemoryStore - a fallback object used by in-memory models
- *
- * NOTE: keep this file minimal and safe to import from other modules.
- */
+
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
 export const inMemoryStore = {
-  products: [],    // { id, name, price }
-  cartItems: [],   // { id, productId, qty }
-  receipts: []     // { id, total, timestamp }
+  products: [],
+  cartItems: [],
+  receipts: [] 
 };
 
 let isConnected = false;

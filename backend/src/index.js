@@ -23,12 +23,9 @@ async function start() {
     const isMongo = await connectToDatabase();
 
     console.log(`[server] Starting Mock E-Com Cart on port ${PORT} (MongoDB: ${isMongo ? "connected" : "not connected — using in-memory"})`);
-
-    // If Mongo connected seed products if empty
     if (isMongo) {
       const count = await Product.countDocuments();
       if (count === 0) {
-        // dynamic import to avoid cycles
         const seedProducts = (await import("./data/products.js")).default;
         await Product.insertMany(seedProducts.map(p => ({ name: p.name, price: p.price })));
         console.log("[seed] Products collection seeded (MongoDB).");
@@ -36,7 +33,6 @@ async function start() {
         console.log(`[seed] Products collection exists with ${count} items.`);
       }
     } else {
-      // ensure in-memory products seeded
       if (!inMemoryStore.products || inMemoryStore.products.length === 0) {
         const seedProducts = (await import("./data/products.js")).default;
         inMemoryStore.products = seedProducts.map(p => ({ id: p.id, name: p.name, price: p.price }));

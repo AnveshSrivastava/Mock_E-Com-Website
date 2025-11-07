@@ -1,9 +1,6 @@
 import mongoose from "mongoose";
 import { inMemoryStore } from "../db/connect.js";
 
-// Define schema and mongoose model eagerly. It's safe to
-// create the model before a connection is established — the
-// model will be ready once mongoose connects.
 const schema = new mongoose.Schema({
   productId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Product" },
   qty: { type: Number, required: true },
@@ -11,14 +8,11 @@ const schema = new mongoose.Schema({
 });
 
 const MongooseModel = mongoose.models.CartItem || mongoose.model("CartItem", schema);
-
-// Helper: generate in-memory id
 const generateId = () => `c${Date.now().toString(36)}${Math.floor(Math.random() * 1000)}`;
 
 const CartItemModel = {
   async validateStore() {
     try {
-      // if mongoose has an active connection, ping DB
       if (mongoose.connection && mongoose.connection.db) {
         await mongoose.connection.db.admin().ping();
         return true;
@@ -26,7 +20,6 @@ const CartItemModel = {
     } catch (err) {
       return false;
     }
-    // if no mongoose DB available, still consider in-memory valid
     return true;
   },
 
@@ -67,7 +60,6 @@ const CartItemModel = {
 
   async update(id, updateObj, version) {
     try {
-      // optimistic locking: match provided version
       const doc = await MongooseModel.findOneAndUpdate(
         { _id: id, version },
         { ...updateObj, $inc: { version: 1 } },
@@ -79,7 +71,6 @@ const CartItemModel = {
       }
       return { id: doc._id.toString(), productId: doc.productId.toString(), qty: doc.qty, version: doc.version };
     } catch (err) {
-      // fallback to in-memory
       const idx = inMemoryStore.cartItems.findIndex(ci => ci.id === id);
       if (idx === -1) return null;
       if (inMemoryStore.cartItems[idx].version !== version) {

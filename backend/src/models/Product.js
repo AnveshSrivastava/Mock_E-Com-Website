@@ -10,10 +10,6 @@ const schema = new mongoose.Schema({
 });
 
 function getMongooseModel() {
-  // Always create or return the mongoose model. Creating the model
-  // before a live connection is safe — mongoose will use it once
-  // the connection is established. We still guard DB operations
-  // with try/catch and fall back to the in-memory store on error.
   if (!MongooseModel) {
     MongooseModel = mongoose.models.Product || mongoose.model("Product", schema);
   }
@@ -27,7 +23,6 @@ const ProductModel = {
       const docs = await model.find().lean();
       return docs.map(d => ({ id: d._1?._id?.toString ? d._id.toString() : d._id, name: d.name, price: d.price }));
     } catch (err) {
-      // fallback to in-memory store
       return inMemoryStore.products.map(p => ({ id: p.id, name: p.name, price: p.price }));
     }
   },

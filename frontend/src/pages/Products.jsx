@@ -91,8 +91,7 @@ export const Products = ({ onCartUpdate }) => {
             </div>
           </motion.div>
         </div>
-        
-        {/* Decorative elements */}
+      
         <div className="absolute top-0 right-0 w-64 h-64 gradient-primary rounded-full opacity-10 blur-3xl"></div>
         <div className="absolute bottom-0 right-1/4 w-48 h-48 gradient-accent rounded-full opacity-10 blur-3xl"></div>
       </motion.div>
