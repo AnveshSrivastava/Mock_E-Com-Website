@@ -13,9 +13,10 @@
   "description": "",
   "dependencies": {
     "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
+    "cors": "^2.8.6",
     "dotenv": "^17.4.1",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
+    "mongoose": "^9.4.1",
     "nodemon": "^3.1.10"
   }
 }
