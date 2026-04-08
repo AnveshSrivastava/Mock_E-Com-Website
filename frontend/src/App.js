@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Toaster } from '@/components/ui/sonner';
-import { Navbar } from '@/components/Navbar';
-import { Products } from '@/pages/Products';
-import { Cart } from '@/pages/Cart';
-import { getCart } from '@/api/api';
+import { Toaster } from './components/ui/sonner';
+import { Navbar } from './components/Navbar';
+import { Products } from './pages/Products';
+import { Cart } from './pages/Cart';
+import { getCart } from './api/api';
 import './App.css';
 
 function App() {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Package, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from './ui/button';
 import { useNavigate } from 'react-router-dom';
 
 export const EmptyState = ({ type = 'cart' }) => {

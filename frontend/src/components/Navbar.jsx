@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, Package } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Badge } from '@/components/ui/badge';
+import { Badge } from './ui/badge';
 
 export const Navbar = ({ cartCount = 0 }) => {
   const location = useLocation();

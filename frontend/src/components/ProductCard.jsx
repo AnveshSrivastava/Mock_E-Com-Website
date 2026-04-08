@@ -1,9 +1,9 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingCart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { formatPrice } from '@/utils/formatPrice';
+import { Button } from './ui/button';
+import { Card, CardContent, CardFooter } from './ui/card';
+import { formatPrice } from '../utils/formatPrice';
 
 export const ProductCard = ({ product, onAddToCart, isAdding }) => {
   return (

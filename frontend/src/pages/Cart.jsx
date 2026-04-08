@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Trash2, Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Loader } from '@/components/Loader';
-import { EmptyState } from '@/components/EmptyState';
-import { ReceiptModal } from '@/components/ReceiptModal';
-import { getCart, addToCart, removeFromCart, checkout, updateCartQuantity } from '@/api/api';
-import { formatPrice } from '@/utils/formatPrice';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '../components/ui/card';
+import { Separator } from '../components/ui/separator';
+import { Loader } from '../components/Loader';
+import { EmptyState } from '../components/EmptyState';
+import { ReceiptModal } from '../components/ReceiptModal';
+import { getCart, addToCart, removeFromCart, checkout, updateCartQuantity } from '../api/api';
+import { formatPrice } from '../utils/formatPrice';
 
 export const Cart = ({ onCartUpdate }) => {
   const [cartData, setCartData] = useState({ items: [], total: 0 });

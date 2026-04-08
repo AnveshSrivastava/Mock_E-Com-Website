@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
-import { ProductCard } from '@/components/ProductCard';
-import { Loader } from '@/components/Loader';
-import { EmptyState } from '@/components/EmptyState';
-import { getProducts, addToCart } from '@/api/api';
+import { ProductCard } from '../components/ProductCard';
+import { Loader } from '../components/Loader';
+import { EmptyState } from '../components/EmptyState';
+import { getProducts, addToCart } from '../api/api';
 
 export const Products = ({ onCartUpdate }) => {
   const [products, setProducts] = useState([]);

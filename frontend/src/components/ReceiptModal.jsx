@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle2, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { formatPrice } from '@/utils/formatPrice';
+import { Button } from './ui/button';
+import { formatPrice } from '../utils/formatPrice';
 import { useNavigate } from 'react-router-dom';
 
 export const ReceiptModal = ({ isOpen, onClose, receipt }) => {
